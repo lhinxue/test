@@ -1,16 +1,18 @@
 import {
-    Button,
-    Input,
     Modal,
-    ModalBody,
     ModalContent,
-    ModalFooter,
     ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Button,
     useDisclosure,
+    Input,
 } from "@nextui-org/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AppData } from "../../App";
 
-function Authenticator() {
+export default function Authenticator() {
+    const { db } = useContext(AppData);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [formData, setFormData] = useState({ username: "", password: "" });
 
@@ -77,12 +79,14 @@ function Authenticator() {
                                 color="primary"
                                 variant="flat"
                                 onPress={async () => {
-                                    // if (await db.logIn(formData)){
-                                    //     console.log("succeed")
-                                    //     onClose()
-                                    // }else{
-                                    //     console.log("Login Failed. Please use correct credential or contact administrator.")
-                                    // }
+                                    if (await db.logIn(formData)) {
+                                        console.log("succeed");
+                                        onClose();
+                                    } else {
+                                        console.log(
+                                            "Login Failed. Please use correct credential or contact administrator."
+                                        );
+                                    }
                                 }}
                             >
                                 {"Login"}
@@ -94,5 +98,3 @@ function Authenticator() {
         </Modal>
     );
 }
-
-export default Authenticator;
