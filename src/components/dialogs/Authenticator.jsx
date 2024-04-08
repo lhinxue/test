@@ -17,7 +17,7 @@ export default function Authenticator() {
     const [formData, setFormData] = useState({ username: "", password: "" });
 
     useEffect(() => {
-        onOpen();
+        // onOpen();
     }, []);
 
     return (

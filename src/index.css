@@ -2,8 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+    font-family: ChillRoundGothic;
+    src: url(./assets/fonts/ChillRoundGothic_Regular.otf);
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: ChillRoundGothic;
+    src: url(./assets/fonts/ChillRoundGothic_Bold.otf);
+    font-weight: bold;
+}
+
 :root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-family: ChillRoundGothic, Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
 
@@ -11,4 +23,17 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+.after\:bg-divider::after {
+    background-color: #e5e7eb !important;
+}
+
+
+.Navigator>ul>li[aria-selected="true"] {
+    background-color: hsl(var(--nextui-default) / 0.4);
+}
+
+.Navigator>ul>li{
+    transition: background .3s ease-in-out;
 }
