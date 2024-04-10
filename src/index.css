@@ -28,12 +28,3 @@
 .after\:bg-divider::after {
     background-color: #e5e7eb !important;
 }
-
-
-.Navigator>ul>li[aria-selected="true"] {
-    background-color: hsl(var(--nextui-default) / 0.4);
-}
-
-.Navigator>ul>li{
-    transition: background .3s ease-in-out;
-}

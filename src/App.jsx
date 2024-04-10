@@ -3,6 +3,7 @@ import "./App.css";
 import React from "react";
 import ReactDOM, { createRoot } from "react-dom/client";
 import Database from "./providers/Database";
+
 import Authenticator from "./components/dialogs/Authenticator";
 import {
     Avatar,
@@ -64,7 +65,6 @@ const PageTitle = {
     Settings: "Settings",
     Feedback: "Feedback",
 };
-
 export default function App() {
     const [db] = useState(new Database());
     const [hide, _hide] = useState(false);
