@@ -20,9 +20,17 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
+    ScrollShadow,
     Spacer,
+    Table,
+    TableBody,
+    TableCell,
+    TableColumn,
+    TableHeader,
+    TableRow,
     Tooltip,
     User,
+    getKeyValue,
     useDisclosure,
 } from "@nextui-org/react";
 import {
@@ -31,12 +39,15 @@ import {
     RiArrowRightSLine,
     RiBillLine,
     RiDashboardLine,
+    RiEdit2Line,
     RiExchangeDollarLine,
     RiFeedbackLine,
     RiHandCoinLine,
     RiMenuFoldLine,
     RiMenuUnfoldLine,
     RiPriceTagLine,
+    RiRecycleLine,
+    RiRefreshLine,
     RiSettings3Line,
     RiShoppingBag3Line,
     RiShoppingBag4Line,
@@ -70,11 +81,31 @@ export default function App() {
     const [db] = useState(new Database());
     const [hide, _hide] = useState(false);
     const [pageId, _pageId] = useState(Pages.Dashboard);
+    const [exr, _exr] = useState([]);
+    const [authenticated, _authenticated] = useState(false);
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+    useEffect(() => {
+        if (authenticated) {
+            db.find("ExchangeRates").then((data) =>
+                _exr(
+                    data.map((c) => ({
+                        ...c,
+                        key: c.CurrencyCode,
+                    }))
+                )
+            );
+        }
+    }, [authenticated]);
+    const tableColumns = [
+        { key: "CurrencyName", label: "Currency Name" },
+        { key: "CurrencyCode", label: "Currency Code" },
+        { key: "CurrencyRate", label: "Exchange Rate" },
+    ];
     return (
         <AppData.Provider value={{ db }}>
-            <Authenticator />
+            <Authenticator _isAuthenticated={_authenticated} />
             <div className="flex flex-col w-screen h-screen">
                 <div className="px-3 flex flex-row items-center h-14 border-b-1 gap-3">
                     <Button onPress={() => _hide(!hide)} isIconOnly variant="light">
@@ -99,16 +130,92 @@ export default function App() {
                             />
                         </div>
                     </div>
-                    <div className={`flex-1 ${hide ? "" : "w-0"}`}>
-                        <Button
-                            onPress={async () => {
-                                // const data = await getExchangeRates();
-                                // console.log(data);
-                                console.log(await db.find("ExchangeRates"))
-                            }}
-                        >
-                            666
-                        </Button>
+                    <div className={`flex-1 ${hide ? "w-full" : "w-0"}`}>
+                        <Card shadow="sm" className="mx-3 mt-3 px-3 py-1 flex flex-row items-center gap-2" radius="sm">
+                            <div className="text-tiny opacity-80">Your default currency is:</div>
+                            <div className="text-tiny">NZD</div>
+                            <Button
+                                size="sm"
+                                onPress={async () => {
+                                    let [rates, data] = await Promise.all([
+                                        getExchangeRates(),
+                                        db.find("ExchangeRates"),
+                                    ]);
+                                    for (let i = 0; i < data.length; i++) {
+                                        if (rates.data[data[i].CurrencyCode])
+                                            data[i]["CurrencyRate"] = rates.data[data[i].CurrencyCode];
+                                    }
+                                    console.log(data);
+                                    await db.import("ExchangeRates", data);
+                                }}
+                                variant="light"
+                                radius="full"
+                                isIconOnly
+                            >
+                                <RiEdit2Line className="size-4 opacity-80" />
+                            </Button>
+                            <div className="flex-1" />
+                            <div className="text-tiny opacity-80">Last Updated at</div>
+                            <div className="text-tiny">20242</div>
+                            <Button
+                                size="sm"
+                                onPress={async () => {
+                                    let [rates, data] = await Promise.all([
+                                        getExchangeRates(),
+                                        db.find("ExchangeRates"),
+                                    ]);
+                                    for (let i = 0; i < data.length; i++) {
+                                        if (rates.data[data[i].CurrencyCode])
+                                            data[i]["CurrencyRate"] = rates.data[data[i].CurrencyCode];
+                                    }
+                                    console.log(data);
+                                    await db.import("ExchangeRates", data);
+                                }}
+                                variant="light"
+                                radius="full"
+                                isIconOnly
+                            >
+                                <RiRefreshLine className="size-4 opacity-80" />
+                            </Button>
+                        </Card>
+                        <ScrollShadow className="h-full p-3 w-full" hideScrollBar size={10}>
+                            <Table
+                                removeWrapper
+                                classNames={{ base: "h-full w-full" }}
+                                isHeaderSticky
+                                // bottomContent={
+
+                                // }
+                            >
+                                <TableHeader
+                                    columns={
+                                        window.innerWidth < 768
+                                            ? [
+                                                  { key: "CurrencyCode", label: "Currency Code" },
+                                                  { key: "CurrencyRate", label: "Exchange Rate" },
+                                              ]
+                                            : [
+                                                  { key: "CurrencyName", label: "Currency Name" },
+                                                  { key: "CurrencyCode", label: "Currency Code" },
+                                                  { key: "CurrencyRate", label: "Exchange Rate" },
+                                              ]
+                                    }
+                                >
+                                    {(column) => (
+                                        <TableColumn key={column.key} allowsSorting>
+                                            {column.label}
+                                        </TableColumn>
+                                    )}
+                                </TableHeader>
+                                <TableBody items={exr}>
+                                    {(item) => (
+                                        <TableRow key={item.key}>
+                                            {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </ScrollShadow>
                     </div>
                 </div>
             </div>

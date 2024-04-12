@@ -27,40 +27,6 @@ export default class Database {
     async logIn(credential = { username: "lhinxue@gmail.com", password: "lhc1130" }) {
         try {
             await this.app.logIn(Realm.Credentials.emailPassword(credential.username, credential.password));
-
-            console.log(666);
-            let resp = await this.app.currentUser
-                .mongoClient("mongodb-atlas")
-                .db("HOTARU_APP")
-                .collection("ExchangeRates")
-                .find({});
-            //https://ap-southeast-2.aws.services.cloud.mongodb.com/api/client/v2.0/app/hotaru_app-ygcyd/functions/call
-            //https://ap-southeast-2.aws.services.cloud.mongodb.com/api/client/v2.0/app/hotaru_app-ygcyd/functions/call
-
-            // const myHeaders = new Headers();
-            // myHeaders.append("Content-Type", "application/json");
-            // myHeaders.append("Access-Control-Request-Headers", "*");
-            // myHeaders.append("Accept", "application/json");
-            // myHeaders.append("email", "lhinxue@gmail.com");
-            // myHeaders.append("password", "lhc1130");
-
-            // const raw = JSON.stringify({
-            //     dataSource: "Hotaru",
-            //     database: "HOTARU_APP",
-            //     collection: "ExchangeRates",
-            // });
-
-            // const requestOptions = {
-            //     method: "POST",
-            //     headers: myHeaders,
-            //     body: raw,
-            //     redirect: "follow",
-            // };
-
-            // fetch("https://data.mongodb-api.com/app/data-sgoib/endpoint/data/v1/action/find", requestOptions)
-            //     .then((response) => response.text())
-            //     .then((result) => console.log(result))
-            //     .catch((error) => console.error(error));
             return true;
         } catch (error) {
             return false;
@@ -69,10 +35,6 @@ export default class Database {
 
     useCollection(collection) {
         return this.app.currentUser.mongoClient(config.dataSourceName).db(config.databaseName).collection(collection);
-    }
-
-    connect() {
-        // this.db = this.app.currentUser.mongoClient("Hotaru").db("HOTARU_APP");
     }
 
     async find(table, query = {}) {
@@ -84,8 +46,10 @@ export default class Database {
         return await this.useCollection(table).insertMany(data);
     }
 
-    // async upsert(table,query){
-    //     const { condition, projection, sort, limit } = query;
-    //     return await this.db.collection(table).updateMany(filter,)
-    // }
+    async import(table, data) {
+        const collection = this.useCollection(table);
+
+        await collection.deleteMany({});
+        await collection.insertMany(data);
+    }
 }
