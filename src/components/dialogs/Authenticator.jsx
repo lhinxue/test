@@ -17,7 +17,7 @@ export default function Authenticator() {
     const [formData, setFormData] = useState({ username: "", password: "" });
 
     useEffect(() => {
-        // onOpen();
+        onOpen();
     }, []);
 
     return (
@@ -79,8 +79,9 @@ export default function Authenticator() {
                                 color="primary"
                                 variant="flat"
                                 onPress={async () => {
-                                    if (await db.logIn(formData)) {
+                                    if (await db.logIn()) {
                                         console.log("succeed");
+                                        db.connect();
                                         onClose();
                                     } else {
                                         console.log(

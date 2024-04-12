@@ -43,6 +43,7 @@ import {
 } from "@remixicon/react";
 import Menu from "./components/Menu";
 import TransactionCreator from "./components/dialogs/TransactionCreator";
+import { getExchangeRates } from "./providers/ExchangeRate";
 
 export const AppData = createContext();
 
@@ -98,9 +99,20 @@ export default function App() {
                             />
                         </div>
                     </div>
-                    <div className={`flex-1 ${hide ? "" : "w-0"}`}></div>
+                    <div className={`flex-1 ${hide ? "" : "w-0"}`}>
+                        <Button
+                            onPress={async () => {
+                                // const data = await getExchangeRates();
+                                // console.log(data);
+                                console.log(await db.find("ExchangeRates"))
+                            }}
+                        >
+                            666
+                        </Button>
+                    </div>
                 </div>
             </div>
+
             <Button
                 className="fixed right-4 md:right-8 bottom-4 md:bottom-8"
                 onPress={() => onOpen()}
