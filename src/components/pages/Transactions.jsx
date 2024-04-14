@@ -13,18 +13,56 @@ import {
 import { RiBillLine, RiDeleteBinLine, RiEdit2Line, RiRefreshLine } from "@remixicon/react";
 import { getExchangeRates } from "../../providers/ExchangeRate";
 import { AppData } from "../../App";
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
+import dayjs from "../../lib/dayjs";
 
 export default function Transactions({ source }) {
-    const { db } = useContext(AppData);
+    const { db, tags } = useContext(AppData);
+
+    const renderCell = useCallback((item, columnKey) => {
+        // [
+        //     { key: "Date", label: "Date" },
+        //     { key: "Source", label: "Source" },
+        //     { key: "SourceX", label: "Source" },
+        //     { key: "Tag", label: "Tag" },
+        //     { key: "Amount", label: "Amount" },
+        // ]
+        // {
+        // key: crypto.randomUUID(),
+        // Date: dayjs(),
+        // Source: "StayinFront Ltd",
+        // Tag: "661a34e376aa773e74502d46",
+        // Amount: 4000,
+        // IsExpense: false,
+        // Currency: "NZD",
+        // Description: "none",
+        // },
+        switch (columnKey) {
+            case "Date":
+                return item.Date.format("LL");
+            case "Source":
+                return item.Source;
+            case "Tag":
+                return item.Tag;
+            case "Amount":
+                return <span>{`${item.IsExpense ? "-" : ""}${item.Amount} ${item.Currency}`}</span>;
+            case "SourceX":
+                return (
+                    <div>
+                        <div>{item.Source}</div>
+                        <div className="text-tiny opacity-50">{`${item.Tag}·${item.Date.format("L")}`}</div>
+                    </div>
+                );
+            case "Description":
+                return item.Description;
+            default:
+                break;
+        }
+    });
+
     return (
         <div className="flex w-full h-full flex-col">
-            <Card shadow="sm" className="mx-3 mt-3 px-3 py-1 flex flex-row items-center gap-2" radius="sm">
-                <div className="text-tiny opacity-80">Your default currency is:</div>
-                <div className="text-tiny">NZD</div>
-                <Button size="sm" variant="light" radius="full" isIconOnly>
-                    <RiEdit2Line className="size-4 opacity-80" />
-                </Button>
+            <Card shadow="sm" className="mx-3 mt-3 px-3 py-1 flex flex-row items-center gap-1" radius="sm">
                 <div className="flex-1" />
                 <Button size="sm" variant="light">
                     <RiBillLine className="size-4 opacity-80" />
@@ -48,13 +86,15 @@ export default function Transactions({ source }) {
                         columns={
                             window.innerWidth < 768
                                 ? [
-                                      { key: "CurrencyCode", label: "Currency Code" },
-                                      { key: "CurrencyRate", label: "Exchange Rate" },
+                                      { key: "SourceX", label: "Source" },
+                                      { key: "Amount", label: "Amount" },
                                   ]
                                 : [
-                                      { key: "CurrencyName", label: "Currency Name" },
-                                      { key: "CurrencyCode", label: "Currency Code" },
-                                      { key: "CurrencyRate", label: "Exchange Rate" },
+                                      { key: "Source", label: "Source" },
+                                      { key: "Date", label: "Date" },
+                                      { key: "Tag", label: "Tag" },
+                                      { key: "Amount", label: "Amount" },
+                                      { key: "Description", label: "Description" },
                                   ]
                         }
                     >
@@ -64,10 +104,33 @@ export default function Transactions({ source }) {
                             </TableColumn>
                         )}
                     </TableHeader>
-                    <TableBody items={source}>
+                    <TableBody
+                        items={[
+                            {
+                                key: crypto.randomUUID(),
+                                Date: dayjs(),
+                                Source: "StayinFront Ltd",
+                                Tag: "Salary",
+                                Amount: 4000,
+                                IsExpense: false,
+                                Currency: "NZD",
+                                Description: "Salary decrease. Fuck",
+                            },
+                            {
+                                key: crypto.randomUUID(),
+                                Date: dayjs(),
+                                Source: "Countdown",
+                                Tag: "Food",
+                                Amount: 20,
+                                IsExpense: true,
+                                Currency: "NZD",
+                                Description: "chicken & chips. Last time.",
+                            },
+                        ]}
+                    >
                         {(item) => (
                             <TableRow key={item.key}>
-                                {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                                {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
                             </TableRow>
                         )}
                     </TableBody>
