@@ -26,7 +26,9 @@ export default class Database {
 
     async logIn(credential = { username: "lhinxue@gmail.com", password: "lhc1130" }) {
         try {
-            await this.app.logIn(Realm.Credentials.emailPassword(credential.username, credential.password));
+            const user = await this.app.logIn(
+                Realm.Credentials.emailPassword(credential.username, credential.password)
+            );
             return true;
         } catch (error) {
             return false;
@@ -51,5 +53,17 @@ export default class Database {
 
         await collection.deleteMany({});
         await collection.insertMany(data);
+    }
+
+    async getUserData() {
+        const id = this.app.currentUser.id;
+        const users = this.useCollection("Users");
+        const user = await users.find({ UID: id });
+        if (user.length > 0) {
+            return user[0];
+        } else {
+            await users.insertOne({ UID: id });
+            return (await users.find({ UID: id }))[0];
+        }
     }
 }

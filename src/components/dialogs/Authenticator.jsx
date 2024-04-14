@@ -12,7 +12,7 @@ import { useContext, useEffect, useState } from "react";
 import { AppData } from "../../App";
 
 export default function Authenticator({ _isAuthenticated }) {
-    const { db } = useContext(AppData);
+    const { db, _user } = useContext(AppData);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [formData, setFormData] = useState({ username: "", password: "" });
 
@@ -80,7 +80,7 @@ export default function Authenticator({ _isAuthenticated }) {
                                 variant="flat"
                                 onPress={async () => {
                                     if (await db.logIn()) {
-                                        console.log("succeed");
+                                        _user(await db.getUserData());
                                         _isAuthenticated(true);
                                         onClose();
                                     } else {

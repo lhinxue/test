@@ -55,10 +55,13 @@ import {
 import Menu from "./components/Menu";
 import TransactionCreator from "./components/dialogs/TransactionCreator";
 import { getExchangeRates } from "./providers/ExchangeRate";
+import ExchangeRates from "./components/pages/ExchangeRates";
+import Tags from "./components/pages/Tags";
+import Transactions from "./components/pages/Transactions";
 
 export const AppData = createContext();
 
-class Pages {
+class PageIndex {
     static Account = "Account";
     static Dashboard = "Dashboard";
     static Transactions = "Transactions";
@@ -79,32 +82,42 @@ const PageTitle = {
 };
 export default function App() {
     const [db] = useState(new Database());
+    const [user, _user] = useState({});
     const [hide, _hide] = useState(false);
-    const [pageId, _pageId] = useState(Pages.Dashboard);
+    const [pageId, _pageId] = useState(PageIndex.Dashboard);
     const [exr, _exr] = useState([]);
+    const [tags, _tags] = useState([]);
     const [authenticated, _authenticated] = useState(false);
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+    const getAppData = async () => {
+        let [$exchangeRates, $tags] = await Promise.all([
+            db.find("ExchangeRates"),
+            db.find("Tags", { condition: { UID: user.UID } }),
+        ]);
+        _exr(
+            $exchangeRates.map((c) => ({
+                ...c,
+                key: c.CurrencyCode,
+            }))
+        );
+        _tags($tags.map((v) => ({ ...v, key: v.Name })));
+    };
+
     useEffect(() => {
         if (authenticated) {
-            db.find("ExchangeRates").then((data) =>
-                _exr(
-                    data.map((c) => ({
-                        ...c,
-                        key: c.CurrencyCode,
-                    }))
-                )
-            );
+            getAppData();
         }
     }, [authenticated]);
+
     const tableColumns = [
         { key: "CurrencyName", label: "Currency Name" },
         { key: "CurrencyCode", label: "Currency Code" },
         { key: "CurrencyRate", label: "Exchange Rate" },
     ];
     return (
-        <AppData.Provider value={{ db }}>
+        <AppData.Provider value={{ db, user, _user, tags, _tags }}>
             <Authenticator _isAuthenticated={_authenticated} />
             <div className="flex flex-col w-screen h-screen">
                 <div className="px-3 flex flex-row items-center h-14 border-b-1 gap-3">
@@ -126,96 +139,14 @@ export default function App() {
                                         _hide(true);
                                     }
                                 }}
-                                defaultSelected={Pages.Dashboard}
+                                defaultSelected={PageIndex.Dashboard}
                             />
                         </div>
                     </div>
                     <div className={`flex-1 ${hide ? "w-full" : "w-0"}`}>
-                        <Card shadow="sm" className="mx-3 mt-3 px-3 py-1 flex flex-row items-center gap-2" radius="sm">
-                            <div className="text-tiny opacity-80">Your default currency is:</div>
-                            <div className="text-tiny">NZD</div>
-                            <Button
-                                size="sm"
-                                onPress={async () => {
-                                    let [rates, data] = await Promise.all([
-                                        getExchangeRates(),
-                                        db.find("ExchangeRates"),
-                                    ]);
-                                    for (let i = 0; i < data.length; i++) {
-                                        if (rates.data[data[i].CurrencyCode])
-                                            data[i]["CurrencyRate"] = rates.data[data[i].CurrencyCode];
-                                    }
-                                    console.log(data);
-                                    await db.import("ExchangeRates", data);
-                                }}
-                                variant="light"
-                                radius="full"
-                                isIconOnly
-                            >
-                                <RiEdit2Line className="size-4 opacity-80" />
-                            </Button>
-                            <div className="flex-1" />
-                            <div className="text-tiny opacity-80">Last Updated at</div>
-                            <div className="text-tiny">20242</div>
-                            <Button
-                                size="sm"
-                                onPress={async () => {
-                                    let [rates, data] = await Promise.all([
-                                        getExchangeRates(),
-                                        db.find("ExchangeRates"),
-                                    ]);
-                                    for (let i = 0; i < data.length; i++) {
-                                        if (rates.data[data[i].CurrencyCode])
-                                            data[i]["CurrencyRate"] = rates.data[data[i].CurrencyCode];
-                                    }
-                                    console.log(data);
-                                    await db.import("ExchangeRates", data);
-                                }}
-                                variant="light"
-                                radius="full"
-                                isIconOnly
-                            >
-                                <RiRefreshLine className="size-4 opacity-80" />
-                            </Button>
-                        </Card>
-                        <ScrollShadow className="h-full p-3 w-full" hideScrollBar size={10}>
-                            <Table
-                                removeWrapper
-                                classNames={{ base: "h-full w-full" }}
-                                isHeaderSticky
-                                // bottomContent={
-
-                                // }
-                            >
-                                <TableHeader
-                                    columns={
-                                        window.innerWidth < 768
-                                            ? [
-                                                  { key: "CurrencyCode", label: "Currency Code" },
-                                                  { key: "CurrencyRate", label: "Exchange Rate" },
-                                              ]
-                                            : [
-                                                  { key: "CurrencyName", label: "Currency Name" },
-                                                  { key: "CurrencyCode", label: "Currency Code" },
-                                                  { key: "CurrencyRate", label: "Exchange Rate" },
-                                              ]
-                                    }
-                                >
-                                    {(column) => (
-                                        <TableColumn key={column.key} allowsSorting>
-                                            {column.label}
-                                        </TableColumn>
-                                    )}
-                                </TableHeader>
-                                <TableBody items={exr}>
-                                    {(item) => (
-                                        <TableRow key={item.key}>
-                                            {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </ScrollShadow>
+                        {pageId === PageIndex.Transactions && <Transactions source={exr} />}
+                        {pageId === PageIndex.ExchangeRates && <ExchangeRates source={exr} />}
+                        {pageId === PageIndex.Tags && <Tags source={exr} />}
                     </div>
                 </div>
             </div>
