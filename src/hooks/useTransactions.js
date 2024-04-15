@@ -18,12 +18,12 @@ export function useTransactions() {
     const newFormData = () => {
         return {
             Amount: undefined,
-            Currency: "NZD",
-            Date: dayjs(),
-            Description: "",
+            Currency: undefined,
+            Date: dayjs().format("YYYYMMDD"),
+            Description: undefined,
             IsExpense: true,
-            Source: "",
-            Tag: new Set(),
+            Source: undefined,
+            Tag: undefined,
         };
     };
 

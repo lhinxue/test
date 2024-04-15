@@ -48,12 +48,10 @@ import {
     RiPriceTagLine,
     RiRecycleLine,
     RiRefreshLine,
-    RiSettings3Line,
-    RiShoppingBag3Line,
     RiShoppingBag4Line,
 } from "@remixicon/react";
 import Menu from "./components/Menu";
-import TransactionCreator from "./components/dialogs/TransactionCreator";
+import Transaction from "./components/dialogs/Transaction.jsx";
 import { getExchangeRates } from "./providers/ExchangeRate";
 import ExchangeRates from "./components/pages/ExchangeRates";
 import Tags from "./components/pages/Tags";
@@ -85,7 +83,7 @@ export default function App() {
     const [user, _user] = useState({});
     const [hide, _hide] = useState(false);
     const [pageId, _pageId] = useState(PageIndex.Dashboard);
-    const [exr, _exr] = useState([]);
+    const [exchangeRates, _exchangeRates] = useState([]);
     const [tags, _tags] = useState([]);
     const [authenticated, _authenticated] = useState(false);
 
@@ -102,7 +100,7 @@ export default function App() {
             db.find("ExchangeRates"),
             db.find("Tags", { condition: { UID: user.UID } }),
         ]);
-        _exr(
+        _exchangeRates(
             $exchangeRates.map((c) => ({
                 ...c,
                 key: c.CurrencyCode,
@@ -137,6 +135,8 @@ export default function App() {
                 transactions,
                 _transactions,
                 _transactionFormEntity,
+                exchangeRates,
+                _exchangeRates
             }}
         >
             <Authenticator _isAuthenticated={_authenticated} />
@@ -165,9 +165,9 @@ export default function App() {
                         </div>
                     </div>
                     <div className={`flex-1 ${hide ? "w-full" : "w-0"}`}>
-                        {pageId === PageIndex.Transactions && <Transactions source={exr} />}
-                        {pageId === PageIndex.ExchangeRates && <ExchangeRates source={exr} />}
-                        {pageId === PageIndex.Tags && <Tags source={exr} />}
+                        {pageId === PageIndex.Transactions && <Transactions source={exchangeRates} />}
+                        {pageId === PageIndex.ExchangeRates && <ExchangeRates source={exchangeRates} />}
+                        {pageId === PageIndex.Tags && <Tags source={exchangeRates} />}
                     </div>
                 </div>
             </div>
@@ -183,7 +183,7 @@ export default function App() {
             >
                 <RiAddLine className="size-5" />
             </Button>
-            <TransactionCreator isOpen={isTransactionFormOpen} onOpenChange={onTransactionFormOpenChange} />
+            <Transaction isOpen={isTransactionFormOpen} onOpenChange={onTransactionFormOpenChange} />
         </AppData.Provider>
     );
 }

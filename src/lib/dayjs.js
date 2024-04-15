@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
+
 dayjs.extend(LocalizedFormat);
 
 export default dayjs;
@@ -12,7 +13,7 @@ export function getCurrentMonth() {
     };
 }
 
-export function monthIncrease({ year, month }) {
+export function monthIncrease({year, month}) {
     const nextMonthDate = dayjs(`${year}-${month}-01`).add(1, "month");
     return {
         year: nextMonthDate.year(),
@@ -20,7 +21,7 @@ export function monthIncrease({ year, month }) {
     };
 }
 
-export function monthDecrease({ year, month }) {
+export function monthDecrease({year, month}) {
     const prevMonthDate = dayjs(`${year}-${month}-01`).subtract(1, "month");
     return {
         year: prevMonthDate.year(),
@@ -28,7 +29,13 @@ export function monthDecrease({ year, month }) {
     };
 }
 
-export function getCalendar({ year, month }) {
+export function sameMonthDate(data, month, date) {
+    const time = dayjs(data)
+    return time.date() === date && time.month() + 1 === month
+
+}
+
+export function getCalendar({year, month}) {
     const firstDayOfMonth = dayjs(`${year}-${month}-01`);
     const lastDayOfMonth = firstDayOfMonth.endOf("month");
     const startOfWeek = firstDayOfMonth.startOf("week");
@@ -41,7 +48,7 @@ export function getCalendar({ year, month }) {
         while (dayOfWeek.isBefore(currentDay.endOf("week"))) {
             weekDates.push({
                 month: dayOfWeek.month() + 1,
-                day: dayOfWeek.date(),
+                date: dayOfWeek.date(),
             });
             dayOfWeek = dayOfWeek.add(1, "day");
         }

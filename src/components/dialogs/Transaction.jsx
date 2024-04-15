@@ -1,48 +1,77 @@
-import {Autocomplete, AutocompleteItem, Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Select, SelectItem, Tab, Tabs, Textarea,} from "@nextui-org/react";
-import {useEffect, useState} from "react";
-import {RiArrowLeftSLine, RiArrowRightSLine, RiCalendarLine, RiGroupLine, RiMoneyDollarCircleLine, RiPriceTagLine,} from "@remixicon/react";
-import dayjs, {getCalendar, getCurrentMonth, monthDecrease, monthIncrease, sameMonthDate} from "../../lib/dayjs";
-import {useTransactions} from "../../hooks/useTransactions";
-import {inputStyle, modalStyle, scrollShadowProps} from "../style.js";
-import {useExchangeRates} from "../../hooks/useExchangeRates.js";
+import {
+    Autocomplete,
+    AutocompleteItem,
+    Button,
+    Input,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+    ScrollShadow,
+    Select,
+    SelectItem,
+    Tab,
+    Tabs,
+    Textarea,
+} from "@nextui-org/react";
+import { useEffect, useState } from "react";
+import {
+    RiArrowLeftSLine,
+    RiArrowRightSLine,
+    RiCalendarLine,
+    RiGroupLine,
+    RiMoneyDollarCircleLine,
+    RiPriceTagLine,
+} from "@remixicon/react";
+import dayjs, { getCalendar, getCurrentMonth, monthDecrease, monthIncrease, sameMonthDate } from "../../lib/dayjs";
+import { useTransactions } from "../../hooks/useTransactions";
+import { inputStyle, modalStyle, scrollShadowProps } from "../style.js";
+import { useExchangeRates } from "../../hooks/useExchangeRates.js";
 
-export default function CreateTransaction({isOpen, onOpenChange, formEntity}) {
-
-    const sources = {items: [{key: "Countdown", Name: "Countdown"}]}
+export default function Transaction({ isOpen, onOpenChange, formEntity }) {
+    const sources = { items: [{ key: "Countdown", Name: "Countdown" }] };
     const tags = {
-        items: [[
-            {key: "Food", Name: "Food"},
-            {key: "Electronics", Name: "Electronics"},
-            {key: "Game", Name: "Game"},
-        ]]
-    }
+        items: [
+            [
+                { key: "Food", Name: "Food" },
+                { key: "Electronics", Name: "Electronics" },
+                { key: "Game", Name: "Game" },
+            ],
+        ],
+    };
     const transactions = useTransactions();
     const exchangeRates = useExchangeRates();
 
     const [formData, _formData] = useState(transactions.new());
-    const [formError, _formError] = useState({})
+    const [formError, _formError] = useState({});
 
     const [calendarRange, _calendarRange] = useState(getCurrentMonth());
     const [calendarData, _calendarData] = useState();
     const [isCalendarOpen, _isCalendarOpen] = useState(false);
 
-    const updateForm = (key, value) => _formData((prevState) => ({...prevState, [key]: value}));
+    const updateForm = (key, value) => _formData((prevState) => ({ ...prevState, [key]: value }));
 
-    const updateError = (key, value) => _formError((prevState) => ({...prevState, [key]: value}));
+    const updateError = (key, value) => _formError((prevState) => ({ ...prevState, [key]: value }));
 
     const validateForm = () => {
         _formError({});
         let i = 0;
-        if (!formData.Source) updateError("Source", "Source cannot be empty!", i++)
-        if (!formData.Amount) updateError("Amount", "Amount cannot be empty!", i++)
-        if (Number(formData.Amount) < 0) updateError("Amount", "Amount cannot be negative!", i++)
-        if (i > 0) return false
+        if (!formData.Source) updateError("Source", "Source cannot be empty!", i++);
+        if (!formData.Amount) updateError("Amount", "Amount cannot be empty!", i++);
+        if (Number(formData.Amount) < 0) updateError("Amount", "Amount cannot be negative!", i++);
+        if (i > 0) return false;
         return true;
     };
 
-    const StartIcon = ({Icon}) => <div className={inputStyle.startContent}>
-        <Icon className="size-4"/>
-    </div>
+    const StartIcon = ({ Icon }) => (
+        <div className={inputStyle.startContent}>
+            <Icon className="size-4" />
+        </div>
+    );
 
     useEffect(() => {
         _calendarData(getCalendar(calendarRange));
@@ -73,21 +102,29 @@ export default function CreateTransaction({isOpen, onOpenChange, formEntity}) {
                                         <Input
                                             aria-label="Date"
                                             label="Date"
-                                            classNames={{input: "text-left"}}
+                                            classNames={{ input: "text-left" }}
                                             autoComplete="false"
                                             isReadOnly
                                             value={dayjs(formData.Date).format("LL")}
-                                            startContent={<StartIcon Icon={RiCalendarLine}/>}
+                                            startContent={<StartIcon Icon={RiCalendarLine} />}
                                         />
                                     </PopoverTrigger>
                                     <PopoverContent>
                                         <div className="flex flex-row w-full items-center">
                                             <div className="flex-1 font-bold">{`${calendarRange.year} ${calendarRange.month}`}</div>
-                                            <Button isIconOnly variant="light" onPress={() => _calendarRange(monthDecrease)}>
-                                                <RiArrowLeftSLine className="size-5"/>
+                                            <Button
+                                                isIconOnly
+                                                variant="light"
+                                                onPress={() => _calendarRange(monthDecrease)}
+                                            >
+                                                <RiArrowLeftSLine className="size-5" />
                                             </Button>
-                                            <Button isIconOnly variant="light" onPress={() => _calendarRange(monthIncrease)}>
-                                                <RiArrowRightSLine className="size-5"/>
+                                            <Button
+                                                isIconOnly
+                                                variant="light"
+                                                onPress={() => _calendarRange(monthIncrease)}
+                                            >
+                                                <RiArrowRightSLine className="size-5" />
                                             </Button>
                                         </div>
                                         <div className="flex flex-col">
@@ -98,21 +135,42 @@ export default function CreateTransaction({isOpen, onOpenChange, formEntity}) {
                                             </div>
                                             {calendarData?.map((week) => (
                                                 <div className="flex flex-row">
-                                                    {week?.map((day) =>
+                                                    {week?.map((day) => (
                                                         <Button
                                                             isIconOnly
-                                                            variant={sameMonthDate(formData.Date, day.month, day.date) ? "flat" : "light"}
-                                                            color={sameMonthDate(formData.Date, day.month, day.date) ? "primary" : "default"}
+                                                            variant={
+                                                                sameMonthDate(formData.Date, day.month, day.date)
+                                                                    ? "flat"
+                                                                    : "light"
+                                                            }
+                                                            color={
+                                                                sameMonthDate(formData.Date, day.month, day.date)
+                                                                    ? "primary"
+                                                                    : "default"
+                                                            }
                                                             onPress={() => {
-                                                                updateForm("Date", dayjs([calendarRange.year, day.month, day.date]).format("YYYYMMDD"));
+                                                                updateForm(
+                                                                    "Date",
+                                                                    dayjs([
+                                                                        calendarRange.year,
+                                                                        day.month,
+                                                                        day.date,
+                                                                    ]).format("YYYYMMDD")
+                                                                );
                                                                 _isCalendarOpen(false);
                                                             }}
                                                         >
-                                                            <div className={day.month !== calendarRange.month ? "opacity-50" : ""}>
+                                                            <div
+                                                                className={
+                                                                    day.month !== calendarRange.month
+                                                                        ? "opacity-50"
+                                                                        : ""
+                                                                }
+                                                            >
                                                                 {day.date}
                                                             </div>
                                                         </Button>
-                                                    )}
+                                                    ))}
                                                 </div>
                                             ))}
                                         </div>
@@ -123,9 +181,7 @@ export default function CreateTransaction({isOpen, onOpenChange, formEntity}) {
                                     label="Source"
                                     autoComplete="false"
                                     allowsCustomValue
-                                    startContent={
-                                        <StartIcon Icon={RiGroupLine}/>
-                                    }
+                                    startContent={<StartIcon Icon={RiGroupLine} />}
                                     inputValue={formData.Source}
                                     onInputChange={(value) => updateForm("Source", value)}
                                     errorMessage={formError.Source}
@@ -139,9 +195,7 @@ export default function CreateTransaction({isOpen, onOpenChange, formEntity}) {
                                     label="Tag"
                                     selectedKeys={new Set([formData.Tag])}
                                     onSelectionChange={(value) => updateForm("Tag", value.values().next().value)}
-                                    startContent={
-                                        <StartIcon Icon={RiPriceTagLine}/>
-                                    }
+                                    startContent={<StartIcon Icon={RiPriceTagLine} />}
                                 >
                                     {tags.items.map((value) => (
                                         <SelectItem key={value.key} textValue={value.Name}>
@@ -156,9 +210,7 @@ export default function CreateTransaction({isOpen, onOpenChange, formEntity}) {
                                     value={formData.Amount}
                                     autoComplete="false"
                                     onValueChange={(value) => updateForm("Amount", value)}
-                                    startContent={
-                                        <StartIcon Icon={RiMoneyDollarCircleLine}/>
-                                    }
+                                    startContent={<StartIcon Icon={RiMoneyDollarCircleLine} />}
                                     errorMessage={formError.Amount}
                                 />
                                 <div className="flex flex-row gap-3">
@@ -174,7 +226,9 @@ export default function CreateTransaction({isOpen, onOpenChange, formEntity}) {
                                         aria-label="ExchangeRates"
                                         autoComplete="false"
                                         selectedKeys={new Set([formData.Currency])}
-                                        onSelectionChange={(values) => updateForm("Currency", values.values().next().value)}
+                                        onSelectionChange={(values) =>
+                                            updateForm("Currency", values.values().next().value)
+                                        }
                                     >
                                         {exchangeRates.items.map((value) => (
                                             <SelectItem key={value.key} textValue={value.CurrencyCode}>
@@ -183,7 +237,12 @@ export default function CreateTransaction({isOpen, onOpenChange, formEntity}) {
                                         ))}
                                     </Select>
                                 </div>
-                                <Textarea label={"Description"} placeholder=" " value={formData.Description} onValueChange={(value) => updateForm("Description", value)}/>
+                                <Textarea
+                                    label={"Description"}
+                                    placeholder=" "
+                                    value={formData.Description}
+                                    onValueChange={(value) => updateForm("Description", value)}
+                                />
                             </ModalBody>
                         </ScrollShadow>
                         <ModalFooter className="">
@@ -195,7 +254,7 @@ export default function CreateTransaction({isOpen, onOpenChange, formEntity}) {
                                 variant="flat"
                                 onPress={async () => {
                                     if (validateForm()) {
-                                        await transactions.insert(formData)
+                                        await transactions.insert(formData);
                                         onClose();
                                     }
                                 }}
