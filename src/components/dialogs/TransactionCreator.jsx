@@ -5,7 +5,6 @@ import {
     ModalBody,
     ModalFooter,
     Button,
-    useDisclosure,
     Input,
     Popover,
     PopoverTrigger,
@@ -15,90 +14,54 @@ import {
     Tabs,
     Tab,
     Textarea,
-    Dropdown,
-    DropdownTrigger,
-    DropdownMenu,
-    DropdownItem,
     ScrollShadow,
     AutocompleteItem,
     SelectItem,
-    Chip,
 } from "@nextui-org/react";
 import { useContext, useEffect, useState } from "react";
 import { AppData } from "../../App";
-import { RiArrowLeftSLine, RiArrowRightSLine, RiCalendarLine, RiGroupLine, RiMoneyDollarCircleLine, RiPriceTagLine } from "@remixicon/react";
+import {
+    RiArrowLeftSLine,
+    RiArrowRightSLine,
+    RiCalendarLine,
+    RiGroupLine,
+    RiMoneyDollarCircleLine,
+    RiPriceTagLine,
+} from "@remixicon/react";
 import dayjs from "../../lib/dayjs";
-import Apptest from "./text";
 import { TRANSITION_EASINGS } from "@nextui-org/framer-transitions";
-function getCurrentMonth() {
-    const currentDate = dayjs();
-    return {
-        year: currentDate.year(),
-        month: currentDate.month() + 1, // Month is zero-based, so add 1
-    };
-}
-// Function to increase the month by one
-function monthIncrease({ year, month }) {
-    const nextMonthDate = dayjs(`${year}-${month}-01`).add(1, "month");
-    return {
-        year: nextMonthDate.year(),
-        month: nextMonthDate.month() + 1, // Month is zero-based, so add 1
-    };
-}
-// Function to decrease the month by one
-function monthDecrease({ year, month }) {
-    const prevMonthDate = dayjs(`${year}-${month}-01`).subtract(1, "month");
-    return {
-        year: prevMonthDate.year(),
-        month: prevMonthDate.month() + 1, // Month is zero-based, so add 1
-    };
-}
+import { useTransactions } from "../../hooks/useTransactions";
+import { getCurrentMonth, monthIncrease, monthDecrease, getCalendar } from "../../lib/dayjs";
 
-function getCalendar({ year, month }) {
-    const firstDayOfMonth = dayjs(`${year}-${month}-01`);
-    const lastDayOfMonth = firstDayOfMonth.endOf("month");
-    const startOfWeek = firstDayOfMonth.startOf("week");
-    const endOfWeek = lastDayOfMonth.endOf("week");
-    const weeks = [];
-    let currentDay = startOfWeek;
-    while (currentDay.isBefore(endOfWeek)) {
-        const weekDates = [];
-        let dayOfWeek = currentDay;
-        // Add each date (month and day) to the weekDates array
-        while (dayOfWeek.isBefore(currentDay.endOf("week"))) {
-            weekDates.push({
-                month: dayOfWeek.month() + 1, // Month is zero-based, so add 1
-                day: dayOfWeek.date(),
-            });
-            dayOfWeek = dayOfWeek.add(1, "day");
-        }
-        weeks.push(weekDates);
-        currentDay = currentDay.add(1, "week");
-    }
-    console.log(weeks);
-    return weeks;
-}
 function newFormData() {
     return {
         date: dayjs(),
         src: "",
-        tags: new Set(),
+        tag: new Set(),
         amount: undefined,
         type: 0,
         exr: "NZD",
         desc: "",
+        IsExpense: true,
     };
 }
-export default function TransactionCreator({ isOpen, onOpenChange }) {
-    const { db } = useContext(AppData);
-    const [formData, setFormData] = useState(newFormData());
+export default function TransactionCreator({ isOpen, onOpenChange, formEntity }) {
+    const _ = useTransactions();
+    const [formData, _formData] = useState(_.new());
     const [currentMonth, _currentMonth] = useState(getCurrentMonth());
     const [calendar, _calendar] = useState();
     const [isCalendarOpen, _isCalendarOpen] = useState(false);
+    const updateForm = (key, value) => {
+        _formData((prevState) => ({ ...prevState, [key]: value }));
+    };
 
     useEffect(() => {
         _calendar(getCalendar(currentMonth));
     }, [currentMonth]);
+
+    useEffect(() => {
+        // if (formEntity)
+    }, [formEntity]);
     let tabs = [
         {
             id: "photos",
@@ -181,7 +144,7 @@ export default function TransactionCreator({ isOpen, onOpenChange }) {
                                             classNames={{ input: "text-left" }}
                                             isReadOnly
                                             label="Date"
-                                            value={formData.date.format("LL")}
+                                            value={formData.Date.format("LL")}
                                             startContent={
                                                 <div className="h-5 flex items-center opacity-70 mr-1">
                                                     <RiCalendarLine className="size-4" />
@@ -219,14 +182,18 @@ export default function TransactionCreator({ isOpen, onOpenChange }) {
                                                         <Button
                                                             isIconOnly
                                                             variant={
-                                                                formData.date.date() === date.day ? "flat" : "light"
+                                                                formData.Date.date() === date.day ? "flat" : "light"
                                                             }
                                                             color={
-                                                                formData.date.date() === date.day
+                                                                formData.Date.date() === date.day
                                                                     ? "primary"
                                                                     : "default"
                                                             }
                                                             onPress={() => {
+                                                                updateForm(
+                                                                    "Date",
+                                                                    dayjs(currentMonth.year, date.month, date.day)
+                                                                );
                                                                 _isCalendarOpen(false);
                                                             }}
                                                         >
@@ -255,16 +222,18 @@ export default function TransactionCreator({ isOpen, onOpenChange }) {
                                             <RiGroupLine className="size-4" />
                                         </div>
                                     }
+                                    inputValue={formData.Source}
+                                    onInputChange={(v) => updateForm("Source", v)}
                                 >
                                     {[{ key: "Countdown", label: "Countdown" }].map((obj) => (
                                         <AutocompleteItem key={obj.key}>{obj.label}</AutocompleteItem>
                                     ))}
                                 </Autocomplete>
                                 <Select
-                                    aria-label="Tags"
-                                    label="Tags"
-                                    selectedKeys={formData.tags}
-                                    onSelectionChange={(keys) => setFormData((fd) => ({ ...fd, tags: keys }))}
+                                    aria-label="Tag"
+                                    label="Tag"
+                                    selectedKeys={formData.Tag}
+                                    onSelectionChange={(v) => updateForm("Tag", v)}
                                     startContent={
                                         <div className="h-5 flex items-center opacity-70 mr-1">
                                             <RiPriceTagLine className="size-4" />
@@ -284,11 +253,10 @@ export default function TransactionCreator({ isOpen, onOpenChange }) {
 
                                 <Input
                                     label="Amount"
-                                    value={formData.username}
+                                    type="number"
+                                    value={formData.Amount}
                                     autoComplete="false"
-                                    onValueChange={(value) =>
-                                        setFormData((prevState) => ({ ...prevState, username: value }))
-                                    }
+                                    onValueChange={(value) => updateForm("Amount", value)}
                                     startContent={
                                         <div className="h-5 flex items-center opacity-70 mr-1">
                                             <RiMoneyDollarCircleLine className="size-4" />
@@ -296,20 +264,39 @@ export default function TransactionCreator({ isOpen, onOpenChange }) {
                                     }
                                 />
                                 <div className="flex flex-row gap-3">
-                                    <Tabs aria-label="Options">
-                                        <Tab key={"expense"} title="expense"></Tab>
-                                        <Tab key={"income"} title="income"></Tab>
+                                    <Tabs
+                                        aria-label="Options"
+                                        selectedKey={formData.IsExpense ? "e" : "i"}
+                                        onSelectionChange={(v) => updateForm("IsExpense", v === "e")}
+                                    >
+                                        <Tab key={"e"} title="expense"></Tab>
+                                        <Tab key={"i"} title="income"></Tab>
                                     </Tabs>
                                     <Select aria-label="ExchangeRates" autoComplete="false" />
                                 </div>
-                                <Textarea label={"Description"} placeholder=" "/>
+                                <Textarea label={"Description"} placeholder=" " />
                             </ModalBody>
                         </ScrollShadow>
                         <ModalFooter className="">
                             <Button variant="flat" onPress={onClose}>
                                 {"Cancel"}
                             </Button>
-                            <Button color="primary" variant="flat" onPress={async () => {}}>
+                            <Button
+                                color="primary"
+                                variant="flat"
+                                onPress={async () => {
+                                    await parent.insert({
+                                        Date: formData.Date.format("YYYYMMDD"),
+                                        Source: formData.Source,
+                                        Tag: formData.Tag.values().next().value,
+                                        Amount: formData.Amount,
+                                        IsExpense: formData.IsExpense,
+                                        Currency: "NZD",
+                                        Description: "",
+                                    });
+                                    onClose();
+                                }}
+                            >
                                 {"Submit"}
                             </Button>
                         </ModalFooter>

@@ -1,4 +1,4 @@
-import { createContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import "./App.css";
 import React from "react";
 import ReactDOM, { createRoot } from "react-dom/client";
@@ -89,7 +89,13 @@ export default function App() {
     const [tags, _tags] = useState([]);
     const [authenticated, _authenticated] = useState(false);
 
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [transactions, _transactions] = useState([]);
+    const {
+        isOpen: isTransactionFormOpen,
+        onOpen: onTransactionFormOpen,
+        onOpenChange: onTransactionFormOpenChange,
+    } = useDisclosure();
+    const [transactionFormEntity, _transactionFormEntity] = useState({});
 
     const getAppData = async () => {
         let [$exchangeRates, $tags] = await Promise.all([
@@ -117,7 +123,22 @@ export default function App() {
         { key: "CurrencyRate", label: "Exchange Rate" },
     ];
     return (
-        <AppData.Provider value={{ db, user, _user, tags, _tags }}>
+        <AppData.Provider
+            value={{
+                db,
+                user,
+                _user,
+                tags,
+                _tags,
+                isTransactionFormOpen,
+                onTransactionFormOpen,
+                onTransactionFormOpenChange,
+                transactionFormEntity,
+                transactions,
+                _transactions,
+                _transactionFormEntity,
+            }}
+        >
             <Authenticator _isAuthenticated={_authenticated} />
             <div className="flex flex-col w-screen h-screen">
                 <div className="px-3 flex flex-row items-center h-14 border-b-1 gap-3">
@@ -153,7 +174,7 @@ export default function App() {
 
             <Button
                 className="fixed right-4 md:right-8 bottom-4 md:bottom-8"
-                onPress={() => onOpen()}
+                onPress={() => onTransactionFormOpen()}
                 isIconOnly
                 variant="flat"
                 color="primary"
@@ -162,7 +183,17 @@ export default function App() {
             >
                 <RiAddLine className="size-5" />
             </Button>
-            <TransactionCreator isOpen={isOpen} onOpenChange={onOpenChange} />
+            <TransactionCreator isOpen={isTransactionFormOpen} onOpenChange={onTransactionFormOpenChange} />
         </AppData.Provider>
     );
+}
+
+export function useAppData() {
+    const app = useContext(AppData);
+    return app;
+}
+
+export function useDB() {
+    const { db } = useContext(AppData);
+    return db;
 }

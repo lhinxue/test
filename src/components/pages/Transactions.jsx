@@ -15,10 +15,10 @@ import { getExchangeRates } from "../../providers/ExchangeRate";
 import { AppData } from "../../App";
 import { useCallback, useContext } from "react";
 import dayjs from "../../lib/dayjs";
-
+import { useTransactions } from "../../hooks/useTransactions";
 export default function Transactions({ source }) {
     const { db, tags } = useContext(AppData);
-
+    const transactions = useTransactions()
     const renderCell = useCallback((item, columnKey) => {
         // [
         //     { key: "Date", label: "Date" },
@@ -39,7 +39,7 @@ export default function Transactions({ source }) {
         // },
         switch (columnKey) {
             case "Date":
-                return item.Date.format("LL");
+                return dayjs(item.Date).format("LL");
             case "Source":
                 return item.Source;
             case "Tag":
@@ -64,7 +64,7 @@ export default function Transactions({ source }) {
         <div className="flex w-full h-full flex-col">
             <Card shadow="sm" className="mx-3 mt-3 px-3 py-1 flex flex-row items-center gap-1" radius="sm">
                 <div className="flex-1" />
-                <Button size="sm" variant="light">
+                <Button size="sm" variant="light" onPress={transactions.open}>
                     <RiBillLine className="size-4 opacity-80" />
                     <span>{"Create"}</span>
                 </Button>
@@ -105,28 +105,7 @@ export default function Transactions({ source }) {
                         )}
                     </TableHeader>
                     <TableBody
-                        items={[
-                            {
-                                key: crypto.randomUUID(),
-                                Date: dayjs(),
-                                Source: "StayinFront Ltd",
-                                Tag: "Salary",
-                                Amount: 4000,
-                                IsExpense: false,
-                                Currency: "NZD",
-                                Description: "Salary decrease. Fuck",
-                            },
-                            {
-                                key: crypto.randomUUID(),
-                                Date: dayjs(),
-                                Source: "Countdown",
-                                Tag: "Food",
-                                Amount: 20,
-                                IsExpense: true,
-                                Currency: "NZD",
-                                Description: "chicken & chips. Last time.",
-                            },
-                        ]}
+                        items={transactions.items}
                     >
                         {(item) => (
                             <TableRow key={item.key}>
