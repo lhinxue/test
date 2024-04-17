@@ -15,7 +15,7 @@ function newFormData(entries) {
     return Object.fromEntries(entries.map((value) => [value, undefined]));
 }
 
-export default function General({ title, entries = [], isOpen, onOpenChange, onValidate, onSubmit }) {
+export default function General({ title, entries = [], isOpen, onOpenChange, onValidate, onSubmit, formEntity }) {
     const [formData, _formData] = useState(newFormData(entries));
     const [formError, _formError] = useState({});
 
@@ -42,6 +42,12 @@ export default function General({ title, entries = [], isOpen, onOpenChange, onV
             _formError({});
         }
     }, [isOpen]);
+
+    useEffect(() => {
+        if (formEntity) {
+            _formData(formEntity);
+        }
+    }, [formEntity]);
 
     return (
         <Modal

@@ -54,6 +54,7 @@ export default function App() {
         onOpen: onGeneralFormOpen,
         onOpenChange: onGeneralFormOpenChange,
     } = useDisclosure();
+    const [generalFormEntity, _generalFormEntity] = useState();
     const [onGeneralFormValidate, _onGeneralFormValidate] = useState(() => {});
     const [onGeneralFormSubmit, _onGeneralFormSubmit] = useState(() => {});
 
@@ -69,7 +70,7 @@ export default function App() {
             db.find("ExchangeRates"),
             db.find("Tags", { condition: { UID: user.UID } }),
         ]);
-        console.log(respExchangeRates)
+        console.log(respExchangeRates);
         _counterparties(respCounterparties.map((value) => ({ ...value, key: value.Name })));
         _exchangeRates(respExchangeRates.map((value) => ({ ...value, key: value.CurrencyCode })));
         _tags(respTags.map((value) => ({ ...value, key: value.Name })));
@@ -106,6 +107,8 @@ export default function App() {
                 isGeneralFormOpen,
                 onGeneralFormOpen,
                 onGeneralFormOpenChange,
+                generalFormEntity,
+                _generalFormEntity,
                 onGeneralFormValidate,
                 _onGeneralFormValidate,
                 onGeneralFormSubmit,
@@ -164,6 +167,7 @@ export default function App() {
                 onOpenChange={onGeneralFormOpenChange}
                 onValidate={onGeneralFormValidate}
                 onSubmit={onGeneralFormSubmit}
+                formEntity={generalFormEntity}
             />
         </AppData.Provider>
     );

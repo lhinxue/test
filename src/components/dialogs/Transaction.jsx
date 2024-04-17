@@ -31,18 +31,11 @@ import dayjs, { getCalendar, getCurrentMonth, monthDecrease, monthIncrease, same
 import { useTransactions } from "../../hooks/useTransactions";
 import { inputStyle, modalStyle, scrollShadowProps } from "../style.js";
 import { useExchangeRates } from "../../hooks/useExchangeRates.js";
+import { useTags } from "../../hooks/useTags.js";
 
 export default function Transaction({ isOpen, onOpenChange, formEntity }) {
-    const sources = { items: [{ key: "Countdown", Name: "Countdown" }] };
-    const tags = {
-        items: [
-            [
-                { key: "Food", Name: "Food" },
-                { key: "Electronics", Name: "Electronics" },
-                { key: "Game", Name: "Game" },
-            ],
-        ],
-    };
+    const counterparties = { items: [{ key: "Countdown", Name: "Countdown" }] };
+    const tags = useTags();
     const transactions = useTransactions();
     const exchangeRates = useExchangeRates();
 
@@ -60,7 +53,8 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
     const validateForm = () => {
         _formError({});
         let i = 0;
-        if (!formData.Source) updateError("Source", "Source cannot be empty!", i++);
+        if (!formData.Counterparty)
+            updateError("Counterparty", `${formData.IsExpense ? "Payee" : "Payer"} cannot be empty!`, i++);
         if (!formData.Amount) updateError("Amount", "Amount cannot be empty!", i++);
         if (Number(formData.Amount) < 0) updateError("Amount", "Amount cannot be negative!", i++);
         if (i > 0) return false;
@@ -177,32 +171,33 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
                                     </PopoverContent>
                                 </Popover>
                                 <Autocomplete
-                                    aria-label="Source"
-                                    label="Source"
+                                    aria-label="Counterparty"
+                                    label={formData.IsExpense ? "Payee" : "Payer"}
                                     autoComplete="false"
                                     allowsCustomValue
                                     startContent={<StartIcon Icon={RiGroupLine} />}
-                                    inputValue={formData.Source}
-                                    onInputChange={(value) => updateForm("Source", value)}
-                                    errorMessage={formError.Source}
+                                    inputValue={formData.Counterparty}
+                                    onInputChange={(value) => updateForm("Counterparty", value)}
+                                    errorMessage={formError.Counterparty}
                                 >
-                                    {sources.items.map((value) => (
+                                    {counterparties.items.map((value) => (
                                         <AutocompleteItem key={value.key}>{value.Name}</AutocompleteItem>
                                     ))}
                                 </Autocomplete>
-                                <Select
+                                <Autocomplete
                                     aria-label="Tag"
                                     label="Tag"
-                                    selectedKeys={new Set([formData.Tag])}
-                                    onSelectionChange={(value) => updateForm("Tag", value.values().next().value)}
+                                    autoComplete="false"
+                                    allowsCustomValue
                                     startContent={<StartIcon Icon={RiPriceTagLine} />}
+                                    inputValue={formData.Tag}
+                                    onInputChange={(value) => updateForm("Tag", value)}
+                                    errorMessage={formError.Tag}
                                 >
                                     {tags.items.map((value) => (
-                                        <SelectItem key={value.key} textValue={value.Name}>
-                                            {value.Name}
-                                        </SelectItem>
+                                        <AutocompleteItem key={value.key}>{value.Name}</AutocompleteItem>
                                     ))}
-                                </Select>
+                                </Autocomplete>
                                 <Input
                                     aria-label="Amount"
                                     label="Amount"
@@ -219,8 +214,8 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
                                         selectedKey={formData.IsExpense ? "e" : "i"}
                                         onSelectionChange={(value) => updateForm("IsExpense", value === "e")}
                                     >
-                                        <Tab key={"e"} title="expense"></Tab>
-                                        <Tab key={"i"} title="income"></Tab>
+                                        <Tab key={"e"} title="Expense"></Tab>
+                                        <Tab key={"i"} title="Income"></Tab>
                                     </Tabs>
                                     <Select
                                         aria-label="ExchangeRates"

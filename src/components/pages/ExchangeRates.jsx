@@ -21,7 +21,7 @@ export default function ExchangeRates() {
     const exchangeRates = useExchangeRates();
     return (
         <div className="flex w-full h-full flex-col">
-            <Card shadow="sm" className="mx-3 mt-3 px-3 py-1 flex flex-row items-center gap-2" radius="sm">
+            <Card shadow="sm" className="mx-3 mt-3 px-3 py-2 flex flex-row items-center gap-2" radius="sm">
                 <div className="text-tiny opacity-80">Your default currency is:</div>
                 <div className="text-tiny">NZD</div>
                 <Button size="sm" variant="light" radius="full" isIconOnly>
