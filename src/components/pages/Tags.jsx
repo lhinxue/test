@@ -23,17 +23,18 @@ import {
 import { getExchangeRates } from "../../providers/ExchangeRate";
 import { AppData } from "../../App";
 import { useContext, useEffect } from "react";
-import CreateTag from "../dialogs/CreateTag";
+import CreateTag from "../dialogs/General";
+import useGeneralForm from "../../hooks/useGeneralForm";
+import { useTags } from "../../hooks/useTags";
 
 export default function Tags({ source }) {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    const { db, user, tags, _tags } = useContext(AppData);
-    useEffect(() => {
-        console.log(user);
-    }, [user]);
+    const tags = useTags();
+
+    const form = useGeneralForm();
 
     const createTag = () => {
-        onOpen();
+        form.open("Create new Tag", ["Name"]);
     };
     return (
         <div className="flex w-full h-full flex-col">
@@ -60,14 +61,19 @@ export default function Tags({ source }) {
                     selectionMode="single"
                     onRowAction={(key) => console.log(key)}
                 >
-                    <TableHeader columns={[{ key: "Name", label: "Tag Name" }]}>
+                    <TableHeader
+                        columns={[
+                            { key: "Name", label: "Tag Name" },
+                            { key: "Action", label: " " },
+                        ]}
+                    >
                         {(column) => (
                             <TableColumn key={column.key} allowsSorting>
                                 {column.label}
                             </TableColumn>
                         )}
                     </TableHeader>
-                    <TableBody items={tags}>
+                    <TableBody items={tags.items}>
                         {(item) => (
                             <TableRow key={item.key}>
                                 {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
@@ -76,7 +82,6 @@ export default function Tags({ source }) {
                     </TableBody>
                 </Table>
             </ScrollShadow>
-            <CreateTag isOpen={isOpen} onOpenChange={onOpenChange} onSubmit={() => {}} />
         </div>
     );
 }

@@ -14,9 +14,11 @@ import { RiEdit2Line, RiRefreshLine } from "@remixicon/react";
 import { getExchangeRates } from "../../providers/ExchangeRate";
 import { AppData } from "../../App";
 import { useContext } from "react";
+import { useExchangeRates } from "../../hooks/useExchangeRates";
 
-export default function ExchangeRates({ source }) {
+export default function ExchangeRates() {
     const { db } = useContext(AppData);
+    const exchangeRates = useExchangeRates();
     return (
         <div className="flex w-full h-full flex-col">
             <Card shadow="sm" className="mx-3 mt-3 px-3 py-1 flex flex-row items-center gap-2" radius="sm">
@@ -74,7 +76,7 @@ export default function ExchangeRates({ source }) {
                             </TableColumn>
                         )}
                     </TableHeader>
-                    <TableBody items={source}>
+                    <TableBody items={exchangeRates.items}>
                         {(item) => (
                             <TableRow key={item.key}>
                                 {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
