@@ -28,3 +28,11 @@
 .after\:bg-divider::after {
     background-color: #e5e7eb !important;
 }
+.HOTARU_TABLE tbody>tr{
+    transition: background-color .3s ease-in-out;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.HOTARU_TABLE tbody>tr:hover{
+    background-color: hsl(var(--nextui-default) / 0.15);
+}

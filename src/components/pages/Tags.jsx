@@ -1,34 +1,10 @@
-import {
-    Button,
-    Card,
-    ScrollShadow,
-    Table,
-    TableBody,
-    TableCell,
-    TableColumn,
-    TableHeader,
-    TableRow,
-    getKeyValue,
-    useDisclosure,
-} from "@nextui-org/react";
-import {
-    RiAddLargeLine,
-    RiAddLine,
-    RiDeleteBinLine,
-    RiEdit2Line,
-    RiEditLine,
-    RiGitMergeLine,
-    RiPriceTag2Line,
-    RiRefreshLine,
-} from "@remixicon/react";
-import { getExchangeRates } from "../../providers/ExchangeRate";
-import { AppData } from "../../App";
-import { useCallback, useContext, useEffect } from "react";
-import CreateTag from "../dialogs/General";
+import {Button, Card, ScrollShadow, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow,} from "@nextui-org/react";
+import {RiDeleteBinLine, RiEditLine, RiGitMergeLine,} from "@remixicon/react";
+import {useCallback} from "react";
 import useGeneralForm from "../../hooks/useGeneralForm";
-import { useTags } from "../../hooks/useTags";
+import {useTags} from "../../hooks/useTags";
 
-export default function Tags({ source }) {
+export default function Tags({source}) {
     const tags = useTags();
 
     const form = useGeneralForm();
@@ -51,13 +27,15 @@ export default function Tags({ source }) {
                                 form.open(
                                     "Modify Tag",
                                     ["Name"],
-                                    () => {},
-                                    () => {},
+                                    () => {
+                                    },
+                                    () => {
+                                    },
                                     item
                                 )
                             }
                         >
-                            <RiEditLine className="size-4" />
+                            <RiEditLine className="size-4"/>
                         </Button>
                     </div>
                 );
@@ -69,24 +47,23 @@ export default function Tags({ source }) {
     return (
         <div className="flex w-full h-full flex-col">
             <Card shadow="sm" className="mx-3 mt-3 px-3 py-1 flex flex-row items-center" radius="sm">
-                <div className="flex-1" />
+                <div className="flex-1"/>
                 <Button size="sm" variant="light">
-                    <RiGitMergeLine className="size-4 opacity-80" />
+                    <RiGitMergeLine className="size-4 opacity-80"/>
                     <span>{"Merge"}</span>
                 </Button>
                 <Button size="sm" variant="light">
-                    <RiDeleteBinLine className="size-4 opacity-80" />
+                    <RiDeleteBinLine className="size-4 opacity-80"/>
                     <span>{"Delete"}</span>
                 </Button>
             </Card>
             <ScrollShadow className="h-full p-3 w-full" hideScrollBar size={10}>
-                <Table removeWrapper classNames={{ base: "h-full w-full" }} isHeaderSticky>
+                <Table removeWrapper className={"HOTARU_TABLE"} classNames={{base: "h-full w-full", tbody: "divide-y"}} isHeaderSticky>
                     <TableHeader
                         columns={[
-                            { key: "Name", label: "Tag Name" },
-                            { key: "Percentage", label: "Percentage" },
-                            { key: "Count", label: "Count" },
-                            { key: "Action", label: " " },
+                            {key: "Name", label: "Tag Name"},
+                            {key: "Percentage", label: "Percentage"},
+                            {key: "Count", label: "Count"},
                         ]}
                     >
                         {(column) => (
@@ -97,7 +74,18 @@ export default function Tags({ source }) {
                     </TableHeader>
                     <TableBody items={tags.items}>
                         {(item) => (
-                            <TableRow key={item.key}>
+                            <TableRow key={item.key} onClick={() => {
+                                form.open(
+                                    "Modify Tag",
+                                    ["Name"],
+                                    () => {
+                                    },
+                                    () => {
+                                    },
+                                    item
+                                )
+                            }
+                            }>
                                 {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
                             </TableRow>
                         )}
