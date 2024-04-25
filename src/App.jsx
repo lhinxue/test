@@ -4,7 +4,7 @@ import React from "react";
 import Database from "./providers/Database";
 
 import Authenticator from "./components/dialogs/Authenticator";
-import { Button, useDisclosure } from "@nextui-org/react";
+import {Button, Modal, ModalBody, ModalContent, useDisclosure} from "@nextui-org/react";
 import { RiAddLine, RiMenuFoldLine, RiMenuUnfoldLine } from "@remixicon/react";
 import Menu from "./components/Menu";
 import ExchangeRates from "./components/pages/ExchangeRates";
@@ -48,7 +48,7 @@ export default function App() {
 
     const [transactionFormEntity, _transactionFormEntity] = useState({});
 
-    const [generalFormConfig, _generalFormConfig] = useState({ title: "", entries: [] });
+    const [generalFormConfig, _generalFormConfig] = useState({ title: "",description:"", entries: [] });
     const {
         isOpen: isGeneralFormOpen,
         onOpen: onGeneralFormOpen,
@@ -162,6 +162,7 @@ export default function App() {
             <Form.Transaction isOpen={isTransactionFormOpen} onOpenChange={onTransactionFormOpenChange} />
             <Form.General
                 title={generalFormConfig.title}
+                description={generalFormConfig.description}
                 entries={generalFormConfig.entries}
                 isOpen={isGeneralFormOpen}
                 onOpenChange={onGeneralFormOpenChange}
@@ -169,6 +170,20 @@ export default function App() {
                 onSubmit={onGeneralFormSubmit}
                 formEntity={generalFormEntity}
             />
+            <Modal
+            isOpen backdrop={"transparent"}
+            isDismissable={false}
+            hideCloseButton>
+                <ModalContent>
+                    {(onClose)=>(<>
+<ModalBody>
+    <AutoExecute func={onClose}/>
+    <Button onPress={onClose}>6</Button>
+    Are you OK?
+</ModalBody>
+                    </>)}
+                </ModalContent>
+            </Modal>
         </AppData.Provider>
     );
 }
@@ -181,4 +196,16 @@ export function useAppData() {
 export function useDB() {
     const { db } = useContext(AppData);
     return db;
+}
+
+
+function AutoExecute({func,delay=3000}){
+    useEffect(()=>{
+        const timeout = setTimeout(()=>{
+            console.log("6")
+            func()
+        },delay)
+        return ()=>clearTimeout(timeout)
+    },[])
+    return <span></span>
 }

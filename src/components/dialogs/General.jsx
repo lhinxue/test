@@ -15,7 +15,7 @@ function newFormData(entries) {
     return Object.fromEntries(entries.map((value) => [value, undefined]));
 }
 
-export default function General({ title, entries = [], isOpen, onOpenChange, onValidate, onSubmit, formEntity }) {
+export default function General({ title, description, entries = [], isOpen, onOpenChange, onValidate, onSubmit, formEntity }) {
     const [formData, _formData] = useState(newFormData(entries));
     const [formError, _formError] = useState({});
 
@@ -65,6 +65,8 @@ export default function General({ title, entries = [], isOpen, onOpenChange, onV
                         <ModalHeader>{title}</ModalHeader>
                         <ScrollShadow {...scrollShadowProps}>
                             <ModalBody>
+
+                                <p>{description}</p>
                                 {entries.map((entry) => (
                                     <Input
                                         aria-label={entry}
